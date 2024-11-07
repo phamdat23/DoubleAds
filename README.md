@@ -53,6 +53,114 @@ Add this to onCreate of your first activity
  If you're going to use IronSource Mediation with other networks, you have to implement the corresponding network adapter
  Here's all network adapter you need:
  https://developers.is.com/ironsource-mobile/android/mediation-networks-android/#step-1
+##### showNativeCompose
+   ```shell
+      var nativeHolder = NativeAdmobHolderAdmob("")
+       AdmobUtils.loadAndGetNativeAds(
+            this,
+            nativeHolderAdmob,
+            object : NativeAdmobCallback {
+                override fun onLoadedAndGetNativeAd(ad: NativeAd?) {
+                    Log.e("AAAAAAAAAAAAA", "onLoadedAndGetNativeAd:nativeAd1:${ad} ", )
+
+                }
+
+                override fun onNativeAdLoaded() {
+
+                }
+
+                override fun onAdFail(error: String?) {
+                    Log.e("AAAAAAAAA", "onAdFail: loadnative fail 1", )
+                }
+
+                override fun onAdPaid(adValue: AdValue?, adUnitAds: String?) {
+
+                }
+            })
+        
+      AdmobUtilsCompose.ShowNativeAdsWithLayout(this,
+                        nativeHolder,
+                        R.layout.ad_template_medium,
+                        GoogleENative.UNIFIED_MEDIUM,
+                        object : AdmobUtils.AdsNativeCallBackAdmod {
+                            override fun NativeLoaded() {
+
+                            }
+
+                            override fun NativeFailed(massage: String) {
+
+                            }
+
+                            override fun onPaidNative(adValue: AdValue, adUnitAds: String) {
+
+                            }
+                        })
+   ```
+##### LoadshowNativeCompose
+ ```sh
+     AdmobUtilsCompose.LoadAndShowNativeAdsWithLayout(
+                        this@MainActivityTestComposeAds,
+                        nativeHolderAdmob2,
+                        R.layout.ad_template_small,
+                        GoogleENative.UNIFIED_SMALL,
+                        object : AdmobUtils.AdsNativeCallBackAdmod {
+                            override fun NativeLoaded() {
+
+                            }
+
+                            override fun NativeFailed(massage: String) {
+
+                            }
+
+                            override fun onPaidNative(adValue: AdValue, adUnitAds: String) {
+
+                            }
+                        })
+  ```
+##### showBanner
+ ```sh
+ AdmobUtilsCompose.ShowBanner(this@MainActivityTestComposeAds,"", object : AdmobUtils.BannerCallBack{
+                        override fun onClickAds() {
+
+                        }
+
+                        override fun onLoad() {
+
+                        }
+
+                        override fun onFailed(message: String) {
+
+                        }
+
+                        override fun onPaid(adValue: AdValue?, mAdView: AdView?) {
+
+                        }
+                    })
+ 
+  ```
+
+##### showBannerCollapsible
+ ```sh
+ AdmobUtilsCompose.ShowBannerCollapsibleNotReload(this@MainActivityTestComposeAds, bannerHolder, CollapsibleBanner.TOP, object : AdmobUtils.BannerCollapsibleAdCallback{
+                        override fun onClickAds() {
+
+                        }
+
+                        override fun onBannerAdLoaded(adSize: AdSize) {
+
+                        }
+
+                        override fun onAdFail(message: String) {
+
+                        }
+
+                        override fun onAdPaid(adValue: AdValue, mAdView: AdView) {
+
+                        }
+                    })
+ 
+  ```
+
 #### Load and show interstitial
  ```sh
 	var interHolder = InterHolder("")
