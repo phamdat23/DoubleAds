@@ -56,6 +56,7 @@ class MainActivityTestComposeAds : ComponentActivity() {
                             }
                         })
                     Spacer(modifier = Modifier.height(20.dp))
+
                     AdmobUtilsCompose.LoadAndShowNativeAdsWithLayout(
                         this@MainActivityTestComposeAds,
                         nativeHolderAdmob2,
@@ -74,6 +75,7 @@ class MainActivityTestComposeAds : ComponentActivity() {
 
                             }
                         })
+
                     Spacer(modifier = Modifier.height(20.dp))
                     AdmobUtilsCompose.ShowBanner(this@MainActivityTestComposeAds,"", object : AdmobUtils.BannerCallBack{
                         override fun onClickAds() {

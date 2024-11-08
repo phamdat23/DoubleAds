@@ -3,6 +3,7 @@ package com.itsol.ironsourcelib
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.RatingBar
@@ -75,7 +76,7 @@ object AdmobUtilsCompose {
         }
         if (!nativeHolder.isLoad) {
             if (nativeHolder.nativeAd != null) {
-                val adView = LayoutInflater.from(context).inflate(layout, null) as NativeAdView
+                val adView by remember { mutableStateOf(LayoutInflater.from(context).inflate(layout, null) as NativeAdView) }
                 PopulateNativeAdViewCompose(
                     nativeAd = nativeHolder.nativeAd,
                     adView,
@@ -107,7 +108,7 @@ object AdmobUtilsCompose {
                     nativeHolder.native_mutable.removeObservers((activity as LifecycleOwner))
                 }
             }
-            val adView = LayoutInflater.from(context).inflate(layout, null) as NativeAdView
+            val adView by remember { mutableStateOf(LayoutInflater.from(context).inflate(layout, null) as NativeAdView) }
             PopulateNativeAdViewCompose(nativeAds, adView, size)
         }
     }
@@ -130,14 +131,16 @@ object AdmobUtilsCompose {
         if (AdmobUtils.isTesting) {
             nativeHolder.ads = context.getString(R.string.test_ads_admob_native_id)
         }
-        var nativeAd by remember { mutableStateOf<NativeAd?>(null) }
+        val nativeHolderAdmob by remember { mutableStateOf(nativeHolder) }
+        var nativeAd by rememberSaveable { mutableStateOf<NativeAd?>(null) }
         val builder by remember { mutableStateOf(AdLoader.Builder(context, nativeHolder.ads)) }
         builder.forNativeAd { it ->
             nativeAd = it
-            nativeHolder.nativeAd = it
-            nativeHolder.native_mutable.value = it
+            Log.e("AAAAAAAAAAAAAA", "LoadAndShowNativeAdsWithLayout:nativeAd1:${nativeAd} ", )
+            nativeHolderAdmob.nativeAd = it
+            nativeHolderAdmob.native_mutable.value = it
             it.setOnPaidEventListener {
-                callback.onPaidNative(it, nativeHolder.ads)
+                callback.onPaidNative(it, nativeHolderAdmob.ads)
             }
 
         }
@@ -147,6 +150,7 @@ object AdmobUtilsCompose {
                     .withAdListener(object : AdListener() {
                         override fun onAdFailedToLoad(adError: LoadAdError) {
                             nativeAd = null
+                            Log.e("AAAAAAAAAA", "onAdFailedToLoad: nativeAd2:${nativeAd}", )
                             nativeHolder.nativeAd = null
                             nativeHolder.native_mutable.value = null
                             callback.NativeFailed("load ad fail")
@@ -164,7 +168,7 @@ object AdmobUtilsCompose {
         if (adRequest != null) {
             adLoader.loadAd(adRequest!!)
         }
-        val adView = LayoutInflater.from(context).inflate(layout, null) as NativeAdView
+        val adView by remember { mutableStateOf(LayoutInflater.from(context).inflate(layout, null) as NativeAdView) }
         PopulateNativeAdViewCompose(nativeAd, adView, size)
     }
 
@@ -390,8 +394,6 @@ object AdmobUtilsCompose {
             nativeAds = nativeAd
             if (nativeAds != null) {
                 isLoading = false
-            } else {
-                isLoading = true
             }
         }
         Box(

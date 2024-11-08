@@ -1,8 +1,11 @@
 # ApplovinUtils
+
 An useful, quick implementation of IronSource Mediation SDK
 
 
-<!-- GETTING STARTED -->
+<!-- GETTING STARTED --> 
+
+
 
 // LOG REVENUE ADMOB
 
@@ -19,7 +22,7 @@ An useful, quick implementation of IronSource Mediation SDK
     maven("https://artifact.bytedance.com/repository/pangle/")
     maven("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea")
     maven("https://artifactory.bidmachine.io/bidmachine")
-    
+
 // LOG REVENUE MAX
 
     fun firebaseAdRevenue(activity: Context, ad: MaxAd?) {
@@ -43,17 +46,82 @@ An useful, quick implementation of IronSource Mediation SDK
         adjustAdRevenue.setAdRevenuePlacement(ad.getPlacement())
         Adjust.trackAdRevenue(adjustAdRevenue)
     }
-#### Init
+
+##### implement lib
+
+ ```sh
+    implementation("com.google.android.gms:play-services-ads:23.3.0")
+    implementation("com.github.phamdat23:DoubleAds:1.0.1")
+ ```
+
+#### InitApplovin
+
 Add this to onCreate of your first activity
+
  ```sh
       ApplovinUtil.initApplovin(this,  true)
  ```
- #### Mediation Adapter
- 
- If you're going to use IronSource Mediation with other networks, you have to implement the corresponding network adapter
- Here's all network adapter you need:
- https://developers.is.com/ironsource-mobile/android/mediation-networks-android/#step-1
+
+#### InitAdmob
+
+Add this to onCreate of your first activity
+
+ ```sh
+ AdmobUtils.initAdmob(this,10000, true, true )
+  ```
+
+#### Init onResume
+
+Add this to onCreate of your first activity after initAdmob
+
+ ```sh
+        AppOpenManager.getInstance().init(application, "id_on_resume")
+        AppOpenManager.getInstance().disableAppResumeWithActivity(SplashActivity::class.java)
+        AppOpenManager.getInstance().setWaitingTime(0)
+        
+      in myApplication 
+      override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level == TRIM_MEMORY_UI_HIDDEN){
+            AppOpenManager.getInstance().timeToBackground = System.currentTimeMillis()
+        }
+    }
+        
+  ```
+
+#### how to use App opend
+
+add after init admob
+
+```sh
+AOAManager(this, "", 1000, object :AOAManager.AppOpenAdsListener {
+            override fun onAdsClose() {
+                Toast.makeText(this@SplashActivity, "close app opend", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onAdsLoaded() {
+
+            }
+
+            override fun onAdsFailed(message: String) {
+                Toast.makeText(this@SplashActivity, "load fail ", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onAdPaid(adValue: AdValue, adUnitAds: String) {
+
+            }
+        })
+```
+
+#### Mediation Adapter
+
+If you're going to use IronSource Mediation with other networks, you have to implement the
+corresponding network adapter
+Here's all network adapter you need:
+https://developers.is.com/ironsource-mobile/android/mediation-networks-android/#step-1
+
 ##### showNativeCompose
+
    ```shell
       var nativeHolder = NativeAdmobHolderAdmob("")
        AdmobUtils.loadAndGetNativeAds(
@@ -96,7 +164,9 @@ Add this to onCreate of your first activity
                             }
                         })
    ```
+
 ##### LoadshowNativeCompose
+
  ```sh
      AdmobUtilsCompose.LoadAndShowNativeAdsWithLayout(
                         this@MainActivityTestComposeAds,
@@ -117,7 +187,9 @@ Add this to onCreate of your first activity
                             }
                         })
   ```
+
 ##### showBanner
+
  ```sh
  AdmobUtilsCompose.ShowBanner(this@MainActivityTestComposeAds,"", object : AdmobUtils.BannerCallBack{
                         override fun onClickAds() {
@@ -140,6 +212,7 @@ Add this to onCreate of your first activity
   ```
 
 ##### showBannerCollapsible
+
  ```sh
  AdmobUtilsCompose.ShowBannerCollapsibleNotReload(this@MainActivityTestComposeAds, bannerHolder, CollapsibleBanner.TOP, object : AdmobUtils.BannerCollapsibleAdCallback{
                         override fun onClickAds() {
@@ -162,6 +235,7 @@ Add this to onCreate of your first activity
   ```
 
 #### Load and show interstitial
+
  ```sh
 	var interHolder = InterHolder("")
 
@@ -216,7 +290,9 @@ Add this to onCreate of your first activity
         })
     }
  ```
+
 #### load and show banner
+
  ```sh
         ApplovinUtil.showBanner(this, bannerContainer, "", object : BannerCallback {
             override fun onBannerLoadFail(error: String) {
@@ -229,7 +305,8 @@ Add this to onCreate of your first activity
             }
         })
  ```
- #### Load and show Native
+
+#### Load and show Native
 
  ```sh
     fun showAdsNative(activity: Activity, nativeHolder: NativeHolder,viewGroup: ViewGroup){
@@ -250,6 +327,7 @@ Add this to onCreate of your first activity
   ```
 
 #### Load and show Reward
+
 ```sh
             ApplovinUtil.loadReward(this, "c10d259dcb47378d", 15000, object : RewardCallback {
                 override fun onRewardReady() {
