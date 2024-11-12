@@ -3,11 +3,14 @@ package com.itsol.ironsourcelib
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +35,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.itsol.ironsourcelib.AdmobUtils.AdsNativeCallBackAdmod
 import com.itsol.ironsourcelib.AdmobUtils.BannerCollapsibleAdCallback
@@ -41,16 +45,32 @@ import com.itsol.ironsourcelib.AdmobUtils.isShowAds
 import com.itsol.ironsourcelib.utils.admod.BannerHolder
 import com.itsol.ironsourcelib.utils.admod.NativeHolderAdmob
 import com.google.ads.mediation.admob.AdMobAdapter
+import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdValue
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.nativead.MediaView
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import com.google.android.gms.ads.nativead.NativeAdView
+import com.itsol.ironsourcelib.AdmobUtils.dialogLoading
+import com.itsol.ironsourcelib.AdmobUtils.dismissAdDialog
+import com.itsol.ironsourcelib.AdmobUtils.initAdRequest
+import com.itsol.ironsourcelib.AdmobUtils.isAdShowing
+import com.itsol.ironsourcelib.AdmobUtils.isTesting
+import com.itsol.ironsourcelib.AdmobUtils.lastTimeShowInterstitial
+import com.itsol.ironsourcelib.AdmobUtils.mInterstitialAd
+import com.itsol.ironsourcelib.AdmobUtils.timeOut
+import com.itsol.ironsourcelib.utils.admod.InterHolderAdmob
+import com.itsol.ironsourcelib.utils.admod.callback.AdsInterCallBack
 import com.valentinilk.shimmer.shimmer
+import java.util.Date
 
 object AdmobUtilsCompose {
 
@@ -131,16 +151,15 @@ object AdmobUtilsCompose {
         if (AdmobUtils.isTesting) {
             nativeHolder.ads = context.getString(R.string.test_ads_admob_native_id)
         }
-        val nativeHolderAdmob by remember { mutableStateOf(nativeHolder) }
-        var nativeAd by rememberSaveable { mutableStateOf<NativeAd?>(null) }
+        var nativeAd by remember{ mutableStateOf<NativeAd?>(null) }
         val builder by remember { mutableStateOf(AdLoader.Builder(context, nativeHolder.ads)) }
         builder.forNativeAd { it ->
             nativeAd = it
             Log.e("AAAAAAAAAAAAAA", "LoadAndShowNativeAdsWithLayout:nativeAd1:${nativeAd} ", )
-            nativeHolderAdmob.nativeAd = it
-            nativeHolderAdmob.native_mutable.value = it
+            nativeHolder.nativeAd = it
+            nativeHolder.native_mutable.value = it
             it.setOnPaidEventListener {
-                callback.onPaidNative(it, nativeHolderAdmob.ads)
+                callback.onPaidNative(it, nativeHolder.ads)
             }
 
         }
@@ -174,10 +193,9 @@ object AdmobUtilsCompose {
 
     @Composable
     fun ShowBannerCollapsibleNotReload(context: Context, bannerId: BannerHolder, collapsibleBanner: CollapsibleBanner, callBack: BannerCollapsibleAdCallback) {
-        val scope = rememberCoroutineScope()
         val activity = context as Activity
         var bannerAdsId by remember { mutableStateOf(bannerId) }
-        var isLoading by rememberSaveable {
+        var isLoading by remember {
             mutableStateOf(true)
         }
         if(!isNetworkConnected(context)){
@@ -254,7 +272,7 @@ object AdmobUtilsCompose {
                     modifier = Modifier
                         .shimmer() // <- Affects all subsequent UI elements
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(4.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     Box(
@@ -284,10 +302,9 @@ object AdmobUtilsCompose {
     }
     @Composable
     fun ShowBanner(context: Context, bannerId: String, callBack: AdmobUtils.BannerCallBack) {
-        val scope = rememberCoroutineScope()
         val activity = context as Activity
         var bannerAdsId by remember { mutableStateOf(bannerId) }
-        var isLoading by rememberSaveable {
+        var isLoading by remember {
             mutableStateOf(true)
         }
         if(!isNetworkConnected(context)){
@@ -353,7 +370,7 @@ object AdmobUtilsCompose {
                     modifier = Modifier
                         .shimmer() // <- Affects all subsequent UI elements
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(4.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     Box(
@@ -413,7 +430,7 @@ object AdmobUtilsCompose {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(195.dp)
+                                .height(150.dp)
                                 .background(Color.LightGray),
                         )
                     } else {
@@ -487,5 +504,7 @@ object AdmobUtilsCompose {
 
 
     }
+
+
 
 }

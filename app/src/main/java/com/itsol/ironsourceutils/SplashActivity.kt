@@ -66,30 +66,36 @@ class SplashActivity : AppCompatActivity() {
                             }
                         })
 
-                        Utils.getInstance().addActivity(this@SplashActivity, MainActivityTestComposeAds::class.java)
+
 
                     }
                 })
         }else{
-            Utils.getInstance().addActivity(this@SplashActivity, MainActivityTestComposeAds::class.java)
+
 
         }
-        AOAManager(this, "", 1000, object :AOAManager.AppOpenAdsListener {
+        AOAManager(this, "", 10000, object :AOAManager.AppOpenAdsListener {
             override fun onAdsClose() {
                 Toast.makeText(this@SplashActivity, "close app opend", Toast.LENGTH_SHORT).show()
+                Utils.getInstance().addActivity(this@SplashActivity, MainActivityTestComposeAds::class.java)
             }
 
             override fun onAdsLoaded() {
 
             }
 
+            override fun onShowed() {
+                Log.e("AAAAAAAAAAAA", "onShowed: show aoa", )
+            }
+
             override fun onAdsFailed(message: String) {
+                Utils.getInstance().addActivity(this@SplashActivity, MainActivityTestComposeAds::class.java)
                 Toast.makeText(this@SplashActivity, "load fail ", Toast.LENGTH_SHORT).show()
             }
 
             override fun onAdPaid(adValue: AdValue, adUnitAds: String) {
 
             }
-        })
+        }).loadAoA()
     }
 }

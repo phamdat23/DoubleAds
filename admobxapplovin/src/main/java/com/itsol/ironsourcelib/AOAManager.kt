@@ -91,7 +91,7 @@ class AOAManager(private val activity: Activity,val appOpen: String,val timeOut:
         }
     }
 
-    fun showAdIfAvailable() {
+   private fun showAdIfAvailable() {
         Log.d("====Timeout", "$isShowingAd - $isAdAvailable")
         if (!isShowingAd && isAdAvailable && isLoading) {
             isLoading = false
@@ -137,6 +137,7 @@ class AOAManager(private val activity: Activity,val appOpen: String,val timeOut:
 
                     override fun onAdShowedFullScreenContent() {
                         isShowingAd = true
+                        appOpenAdsListener.onShowed()
                     }
                 }
             appOpenAd?.run {
@@ -194,6 +195,7 @@ class AOAManager(private val activity: Activity,val appOpen: String,val timeOut:
     interface AppOpenAdsListener {
         fun onAdsClose()
         fun onAdsLoaded()
+        fun onShowed()
         fun onAdsFailed(message : String)
         fun onAdPaid(adValue: AdValue, adUnitAds : String)
     }
