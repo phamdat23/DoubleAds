@@ -145,6 +145,10 @@ object AdmobUtilsCompose {
             callback.NativeFailed("No Internet")
             return
         }
+        if (adRequest==null) {
+            callback.NativeFailed("Not init admob")
+            return
+        }
         if (!isShowAds) {
             callback.NativeFailed("Non Show")
         }
@@ -200,13 +204,20 @@ object AdmobUtilsCompose {
         }
         if(!isNetworkConnected(context)){
             callBack.onAdFail("No Internet")
+            isLoading=false
+            return
+        }
+        if(adRequest==null){
+            callBack.onAdFail("not init admob")
+            isLoading=false
             return
         }
         if(!isShowAds){
             callBack.onAdFail("no show admob")
+            isLoading=false
             return
         }
-        if (AdmobUtils.isTesting) {
+        if (isTesting) {
            bannerAdsId.ads=context.getString(R.string.test_ads_admob_banner_collapsible_id)
         }
         Box(
@@ -309,12 +320,20 @@ object AdmobUtilsCompose {
         }
         if(!isNetworkConnected(context)){
             callBack.onFailed("No Internet")
+            isLoading=false
+            return
+        }
+        if(adRequest==null){
+            callBack.onFailed("not init admob")
+            isLoading=false
             return
         }
         if(!isShowAds){
             callBack.onFailed("no show admob")
+            isLoading=false
             return
         }
+
         if (AdmobUtils.isTesting) {
             bannerAdsId=context.getString(R.string.test_ads_admob_banner_id)
         }
