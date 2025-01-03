@@ -77,7 +77,7 @@ class SplashActivity : AppCompatActivity() {
         AOAManager(this, "", 10000, object :AOAManager.AppOpenAdsListener {
             override fun onAdsClose() {
                 Toast.makeText(this@SplashActivity, "close app opend", Toast.LENGTH_SHORT).show()
-                Utils.getInstance().addActivity(this@SplashActivity, MainActivityTestComposeAds::class.java)
+                Utils.getInstance().addActivity(this@SplashActivity, MainActivity::class.java)
             }
 
             override fun onAdsLoaded() {
@@ -89,7 +89,7 @@ class SplashActivity : AppCompatActivity() {
             }
 
             override fun onAdsFailed(message: String) {
-                Utils.getInstance().addActivity(this@SplashActivity, MainActivityTestComposeAds::class.java)
+                Utils.getInstance().addActivity(this@SplashActivity, MainActivity::class.java)
                 Toast.makeText(this@SplashActivity, "load fail ", Toast.LENGTH_SHORT).show()
             }
 

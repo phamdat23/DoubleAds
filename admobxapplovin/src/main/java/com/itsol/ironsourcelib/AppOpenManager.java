@@ -288,6 +288,7 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, L
         currentActivity = null;
         if (dialogFullScreen != null && dialogFullScreen.isShowing()){
             dialogFullScreen.dismiss();
+            dialogFullScreen= null;
         }
     }
 
