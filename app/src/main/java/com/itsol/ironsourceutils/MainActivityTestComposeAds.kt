@@ -34,8 +34,8 @@ import com.itsol.ironsourcelib.utils.admod.callback.NativeAdmobCallback
 
 class MainActivityTestComposeAds : ComponentActivity() {
     companion object{
-        val nativeHolderAdmob = NativeHolderAdmob("ca-app-pub-5760268661978943/7386320402")
-        val nativeHolderAdmob2 = NativeHolderAdmob("ca-app-pub-5760268661978943/7386320402")
+        val nativeHolderAdmob = NativeHolderAdmob("")
+        val nativeHolderAdmob2 = NativeHolderAdmob("")
         val bannerHolder = BannerHolder("")
         val nativeHolder = NativeHolder("0f688c4e22b9688b")
         val nativeHolder2 = NativeHolder("0f688c4e22b9688b")
@@ -80,7 +80,7 @@ class MainActivityTestComposeAds : ComponentActivity() {
                             }
 
                             override fun NativeFailed(massage: String) {
-                                Log.e("AAAAAAAA", "NativeFailed: $massage", )
+                                Log.e("AAAAAAAA", "NativeFailed: ", )
                             }
 
                             override fun onPaidNative(adValue: AdValue, adUnitAds: String) {
