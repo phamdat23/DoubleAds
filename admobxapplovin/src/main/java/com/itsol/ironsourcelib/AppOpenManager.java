@@ -300,7 +300,7 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, L
                     dialogFullScreen.dismiss();
                     dialogFullScreen = null;
                 }catch (Exception ignored){
-
+                    Log.e(TAG, "showAdIfAvailable: "+ignored.getMessage() );
                 }
                 fullScreenContentCallback.onAdDismissedFullScreenContent();
             }
@@ -324,7 +324,7 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, L
                                 dialogFullScreen.dismiss();
                                 dialogFullScreen = null;
                             }catch (Exception ignored){
-
+                                Log.e(TAG, "onAdShowedFullScreenContent: "+ignored.getMessage() );
                             }
                             // Set the reference to null so isAdAvailable() returns false.
                             appResumeAd = null;
@@ -344,7 +344,7 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, L
                                 dialogFullScreen.dismiss();
                                 dialogFullScreen = null;
                             }catch (Exception ignored){
-
+                                Log.e(TAG, "onAdFailedToShowFullScreenContent: "+ignored.getMessage() );
                             }
 
                             if (fullScreenContentCallback != null) {
@@ -456,7 +456,7 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, L
                 dialogFullScreen.show();
             }
         }catch (Exception ignored){
-
+            Log.e(TAG, "showDialog: "+ignored.getMessage());
         }
     }
 

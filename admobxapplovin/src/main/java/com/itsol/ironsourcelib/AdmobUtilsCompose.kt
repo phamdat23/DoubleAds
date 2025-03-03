@@ -70,6 +70,7 @@ import com.itsol.ironsourcelib.AdmobUtils.timeOut
 import com.itsol.ironsourcelib.utils.admod.InterHolderAdmob
 import com.itsol.ironsourcelib.utils.admod.callback.AdsInterCallBack
 import com.valentinilk.shimmer.shimmer
+import kotlinx.coroutines.delay
 import java.util.Date
 
 object AdmobUtilsCompose {
@@ -86,6 +87,7 @@ object AdmobUtilsCompose {
         val isConnectInternet by remember { mutableStateOf(isNetworkConnected(context)) }
         val activity = context as Activity
         var nativeAds by remember { mutableStateOf<NativeAd?>(null) }
+        var loading by remember { mutableStateOf(true) }
         if (!isConnectInternet || !isShowAds) {
             callback.NativeFailed("no internet")
             return
@@ -97,21 +99,24 @@ object AdmobUtilsCompose {
         if (!nativeHolder.isLoad) {
             if (nativeHolder.nativeAd != null) {
                 val adView by remember { mutableStateOf(LayoutInflater.from(context).inflate(layout, null) as NativeAdView) }
-                PopulateNativeAdViewCompose(
-                    nativeAd = nativeHolder.nativeAd,
-                    adView,
-                    size
-                )
+//                PopulateNativeAdViewCompose(
+//                    nativeAd = nativeHolder.nativeAd,
+//                    adView,
+//                    size
+//                )
+                nativeAds = nativeHolder.nativeAd
                 nativeHolder.native_mutable.removeObservers((activity as LifecycleOwner))
                 nativeAds?.setOnPaidEventListener {
                     callback.onPaidNative(it, nativeHolder.ads)
                 }
 
                 callback.NativeLoaded()
+                loading =false
             } else {
-
+                nativeAds = null
                 nativeHolder.native_mutable.removeObservers((activity as LifecycleOwner))
                 callback.NativeFailed("None Show")
+                loading =false
             }
         } else {
             nativeHolder.native_mutable.observe((activity as LifecycleOwner)) { nativeAd: NativeAd? ->
@@ -122,15 +127,17 @@ object AdmobUtilsCompose {
                     }
                     callback.NativeLoaded()
                     nativeHolder.native_mutable.removeObservers((activity as LifecycleOwner))
+                    loading =false
                 } else {
                     nativeAds = null
                     callback.NativeFailed("None Show")
                     nativeHolder.native_mutable.removeObservers((activity as LifecycleOwner))
+                    loading =false
                 }
             }
-            val adView by remember { mutableStateOf(LayoutInflater.from(context).inflate(layout, null) as NativeAdView) }
-            PopulateNativeAdViewCompose(nativeAds, adView, size)
         }
+        val adView by remember { mutableStateOf(LayoutInflater.from(context).inflate(layout, null) as NativeAdView) }
+        PopulateNativeAdViewCompose(nativeAds, adView, size, loading = loading)
     }
 
     @Composable
@@ -422,7 +429,8 @@ object AdmobUtilsCompose {
     private fun PopulateNativeAdViewCompose(
         nativeAd: NativeAd?,
         adView: NativeAdView,
-        size: GoogleENative
+        size: GoogleENative,
+        loading: Boolean = true
     ) {
         var isLoading by remember { mutableStateOf(true) }
         var nativeAds by remember { mutableStateOf<NativeAd?>(nativeAd) }
@@ -431,6 +439,9 @@ object AdmobUtilsCompose {
             if (nativeAds != null) {
                 isLoading = false
             }
+        }
+        LaunchedEffect(loading) {
+            isLoading = loading
         }
         Box(
             modifier = Modifier
@@ -478,44 +489,47 @@ object AdmobUtilsCompose {
                 }
 
             } else {
-                AndroidView(
-                    factory = { context ->
-                        val headlineView = adView.findViewById<TextView>(R.id.ad_headline)
-                        val ctaView = adView.findViewById<AppCompatButton>(R.id.ad_call_to_action)
-                        val icon = adView.findViewById<ImageView>(R.id.ad_app_icon)
-                        val secondary = adView.findViewById<TextView>(R.id.ad_body)
-                        val mediaView = adView.findViewById<MediaView>(R.id.ad_media)
-                        val rating = adView.findViewById<RatingBar>(R.id.ad_stars)
-                        adView.headlineView = headlineView
-                        adView.callToActionView = ctaView
-                        adView.iconView = icon
-                        adView.bodyView = secondary
-                        adView.mediaView = mediaView
-                        adView.starRatingView = rating
-                        nativeAds?.let {
-                            adView.setNativeAd(it)
-                            headlineView.text = it.headline
-                            ctaView.text = it.callToAction
-                            secondary.text = it.body
-                            if (size == GoogleENative.UNIFIED_MEDIUM) {
-                                adView.mediaView?.mediaContent = it.mediaContent
+                if(nativeAds!=null){
+                    AndroidView(
+                        factory = { context ->
+                            val headlineView = adView.findViewById<TextView>(R.id.ad_headline)
+                            val ctaView = adView.findViewById<AppCompatButton>(R.id.ad_call_to_action)
+                            val icon = adView.findViewById<ImageView>(R.id.ad_app_icon)
+                            val secondary = adView.findViewById<TextView>(R.id.ad_body)
+                            val mediaView = adView.findViewById<MediaView>(R.id.ad_media)
+                            val rating = adView.findViewById<RatingBar>(R.id.ad_stars)
+                            adView.headlineView = headlineView
+                            adView.callToActionView = ctaView
+                            adView.iconView = icon
+                            adView.bodyView = secondary
+                            adView.mediaView = mediaView
+                            adView.starRatingView = rating
+                            nativeAds?.let {
+                                adView.setNativeAd(it)
+                                headlineView.text = it.headline
+                                ctaView.text = it.callToAction
+                                secondary.text = it.body
+                                if (size == GoogleENative.UNIFIED_MEDIUM) {
+                                    adView.mediaView?.mediaContent = it.mediaContent
+                                }
+                                it.icon?.drawable?.let { it1 ->
+                                    (adView.iconView as ImageView).setImageDrawable(it1)
+                                }
+                                it.starRating?.let { it1 ->
+                                    (adView.starRatingView as RatingBar).rating = it1.toFloat()
+                                }
                             }
-                            it.icon?.drawable?.let { it1 ->
-                                (adView.iconView as ImageView).setImageDrawable(it1)
-                            }
-                            it.starRating?.let { it1 ->
-                                (adView.starRatingView as RatingBar).rating = it1.toFloat()
-                            }
-                        }
-                        adView
-                    },
-                    update = {
+                            adView
+                        },
+                        update = {
 
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                    )
+                }
+
 
             }
 

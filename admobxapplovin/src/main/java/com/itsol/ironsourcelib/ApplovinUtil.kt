@@ -885,7 +885,7 @@ object ApplovinUtil : LifecycleObserver {
         nativeAdLoader.loadAd()
     }
 
-    //New thienlp
+
     fun loadAnGetInterstitials(
         activity: Context,
         interHolder: InterHolder,
@@ -1268,8 +1268,8 @@ object ApplovinUtil : LifecycleObserver {
                 view.removeAllViews()
                 try {
                     view.addView(adView)
-                }catch (_ : Exception){
-
+                }catch (e : Exception){
+                    Log.e(TAG, "showNativeWithLayout: ${e.message}", )
                 }
                 callback.onNativeAdLoaded(nativeHolder.native, adView)
             } else {
@@ -1283,8 +1283,8 @@ object ApplovinUtil : LifecycleObserver {
             }
             try {
                 view.addView(tagView, 0)
-            }catch (_ : Exception){
-
+            }catch (e : Exception){
+                Log.e(TAG, "showNativeWithLayout: ${e.message}", )
             }
 
             val shimmerFrameLayout: ShimmerFrameLayout = tagView.findViewById(R.id.shimmer_view_container)
@@ -1296,8 +1296,8 @@ object ApplovinUtil : LifecycleObserver {
                         view.removeAllViews()
                         try {
                             view.addView(adView)
-                        }catch (_ : Exception){
-
+                        }catch (e : Exception){
+                            Log.e(TAG, "showNativeWithLayout: ${e.message}", )
                         }
                         callback.onNativeAdLoaded(nativeHolder.native, adView)
                     } else {

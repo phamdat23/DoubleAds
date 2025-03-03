@@ -19,7 +19,7 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        AdmobUtils.initAdmob(this, 10000, isDebug = true, isEnableAds = true)
+        AdmobUtils.initAdmob(this, 10000, isDebug = false, isEnableAds = true)
 //        AppOpenManager.getInstance().init(application, getString(R.string.test_ads_admob_app_open_new))
         AppOpenManager.getInstance().disableAppResumeWithActivity(SplashActivity::class.java)
         AppOpenManager.getInstance().setWaitingTime(0)
@@ -30,7 +30,7 @@ class SplashActivity : AppCompatActivity() {
             nativeHolderAdmob,
             object : NativeAdmobCallback {
                 override fun onLoadedAndGetNativeAd(ad: NativeAd?) {
-                    Log.e("AAAAAAAAAAAAA", "onLoadedAndGetNativeAd:nativeAd1:${ad} ", )
+                    Log.e("AAAAAAAAAAAAA", "onLoadedAndGetNativeAd:nativeAd1:${ad} ")
 
                 }
 
@@ -39,7 +39,7 @@ class SplashActivity : AppCompatActivity() {
                 }
 
                 override fun onAdFail(error: String?) {
-                    Log.e("AAAAAAAAA", "onAdFail: loadnative fail 1", )
+                    Log.e("AAAAAAAAA", "onAdFail: loadnative fail 1")
                 }
 
                 override fun onAdPaid(adValue: AdValue?, adUnitAds: String?) {
@@ -47,37 +47,71 @@ class SplashActivity : AppCompatActivity() {
                 }
             })
         setContentView(binding.root)
-        if (ApplovinUtil.isNetworkConnected(this)){
-            ApplovinUtil.initApplovin(application, "Hd8NW44NTx4ndvT7Pw2PIQR_omwB0DB00BKnHGXorX1hCETptrgiRyRCtDcZqbhU9Wi_l4R0Icd5N5SkKJFGIy",
+        if (ApplovinUtil.isNetworkConnected(this)) {
+            ApplovinUtil.initApplovin(application,
+                "Hd8NW44NTx4ndvT7Pw2PIQR_omwB0DB00BKnHGXorX1hCETptrgiRyRCtDcZqbhU9Wi_l4R0Icd5N5SkKJFGIy",
                 testAds = true,
                 enableAds = true,
-                initialization = object : ApplovinUtil.Initialization{
+                initialization = object : ApplovinUtil.Initialization {
                     override fun onInitSuccessful() {
-                        ApplovinUtil.loadNativeAds(this@SplashActivity,AdsManager.nativeHolder,object : NativeCallBackNew {
-                            override fun onNativeAdLoaded(nativeAd: MaxAd?, nativeAdView: MaxNativeAdView?) {
-                                Toast.makeText(this@SplashActivity,"Loaded", Toast.LENGTH_SHORT).show()
-                            }
+                        ApplovinUtil.loadNativeAds(
+                            this@SplashActivity,
+                            AdsManager.nativeHolder,
+                            object : NativeCallBackNew {
+                                override fun onNativeAdLoaded(
+                                    nativeAd: MaxAd?,
+                                    nativeAdView: MaxNativeAdView?
+                                ) {
+                                    Toast.makeText(
+                                        this@SplashActivity,
+                                        "Loaded",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
 
-                            override fun onAdFail(error: String) {
-                                Toast.makeText(this@SplashActivity,"Failed", Toast.LENGTH_SHORT).show()
-                            }
+                                override fun onAdFail(error: String) {
+                                    Toast.makeText(
+                                        this@SplashActivity,
+                                        "Failed",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
 
-                            override fun onAdRevenuePaid(ad: MaxAd?) {
-                            }
-                        })
+                                override fun onAdRevenuePaid(ad: MaxAd?) {
+                                }
+                            })
+                        ApplovinUtil.loadNativeAds(
+                            this@SplashActivity,
+                            MainActivityTestComposeAds.nativeHolder2,
+                            object : NativeCallBackNew {
+                                override fun onNativeAdLoaded(
+                                    nativeAd: MaxAd?,
+                                    nativeAdView: MaxNativeAdView?
+                                ) {
+                                    Toast.makeText(this@SplashActivity, "Loaded", Toast.LENGTH_SHORT).show()
+                                }
 
+                                override fun onAdFail(error: String) {
+                                    Toast.makeText(this@SplashActivity, "Failed", Toast.LENGTH_SHORT).show()
+                                }
 
+                                override fun onAdRevenuePaid(ad: MaxAd?) {
+                                }
+                            })
 
                     }
                 })
-        }else{
+
+
+        } else {
 
 
         }
-        AOAManager(this, "", 10000, object :AOAManager.AppOpenAdsListener {
+        AOAManager(this, "", 10000, object : AOAManager.AppOpenAdsListener {
             override fun onAdsClose() {
                 Toast.makeText(this@SplashActivity, "close app opend", Toast.LENGTH_SHORT).show()
-                Utils.getInstance().addActivity(this@SplashActivity, MainActivity::class.java)
+                Utils.getInstance()
+                    .addActivity(this@SplashActivity, MainActivityTestComposeAds::class.java)
             }
 
             override fun onAdsLoaded() {
@@ -85,11 +119,12 @@ class SplashActivity : AppCompatActivity() {
             }
 
             override fun onShowed() {
-                Log.e("AAAAAAAAAAAA", "onShowed: show aoa", )
+                Log.e("AAAAAAAAAAAA", "onShowed: show aoa")
             }
 
             override fun onAdsFailed(message: String) {
-                Utils.getInstance().addActivity(this@SplashActivity, MainActivity::class.java)
+                Utils.getInstance()
+                    .addActivity(this@SplashActivity, MainActivityTestComposeAds::class.java)
                 Toast.makeText(this@SplashActivity, "load fail ", Toast.LENGTH_SHORT).show()
             }
 
