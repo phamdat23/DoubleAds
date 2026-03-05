@@ -107,7 +107,7 @@ object AdmobUtilsCompose {
                 nativeAds = nativeHolder.nativeAd
                 nativeHolder.native_mutable.removeObservers((activity as LifecycleOwner))
                 nativeAds?.setOnPaidEventListener {
-                    callback.onPaidNative(it, nativeHolder.ads)
+                    callback.onPaidNative(nativeAds!!,it, nativeHolder.ads)
                 }
 
                 callback.NativeLoaded()
@@ -123,7 +123,7 @@ object AdmobUtilsCompose {
                 if (nativeAd != null) {
                     nativeAds = nativeAd
                     nativeAds?.setOnPaidEventListener {
-                        callback.onPaidNative(it, nativeHolder.ads)
+                        callback.onPaidNative(nativeAd,it, nativeHolder.ads)
                     }
                     callback.NativeLoaded()
                     nativeHolder.native_mutable.removeObservers((activity as LifecycleOwner))
@@ -170,7 +170,7 @@ object AdmobUtilsCompose {
             nativeHolder.nativeAd = it
             nativeHolder.native_mutable.value = it
             it.setOnPaidEventListener {
-                callback.onPaidNative(it, nativeHolder.ads)
+                callback.onPaidNative(nativeAd!!,it, nativeHolder.ads)
             }
 
         }
