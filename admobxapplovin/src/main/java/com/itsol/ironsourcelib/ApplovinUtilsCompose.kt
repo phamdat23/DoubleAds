@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
@@ -38,9 +39,11 @@ import com.itsol.ironsourcelib.callback_applovin.BannerCallback
 import com.itsol.ironsourcelib.callback_applovin.NativeCallBackNew
 import com.itsol.ironsourcelib.utils.NativeHolder
 import com.itsol.ironsourcelib.utils.admod.BannerHolder
+import com.itsol.ironsourcelib.utils.admod.NativeHolderAdmob
 
 object ApplovinUtilsCompose {
     private var nativeAd: MaxAd? = null
+
     @Composable
     fun ShowBannerMax(
         modifier: Modifier = Modifier,
@@ -210,12 +213,12 @@ object ApplovinUtilsCompose {
         var maxAdView by remember { mutableStateOf<MaxNativeAdView?>(null) }
         if (!enableAds || !isNetworkConnected(context)) {
             callback.onAdFail("No internet")
-            isLoading=false
+            isLoading = false
             return
         }
         if (applovin_sdk?.settings?.isVerboseLoggingEnabled == null) {
             callback.onAdFail("SDK not Initialized")
-            isLoading=false
+            isLoading = false
             return
         }
         LaunchedEffect(true) {
@@ -254,15 +257,18 @@ object ApplovinUtilsCompose {
             nativeHolder.nativeAdLoader?.loadAd(maxAdView)
         }
 
-        Box(modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()) {
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
             if (maxAdView != null) {
-                AndroidView(factory = { context ->
-                    maxAdView!!
-                }, modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
+                AndroidView(
+                    factory = { context ->
+                        maxAdView!!
+                    }, modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
                 )
             }
             if (isLoading) {
@@ -273,17 +279,24 @@ object ApplovinUtilsCompose {
     }
 
     @Composable
-    fun ShowNativeWithLayout(modifier: Modifier= Modifier, context: Context, nativeHolder: NativeHolder, @LayoutRes layout: Int, size: GoogleENative, callback: NativeCallBackNew){
+    fun ShowNativeWithLayout(
+        modifier: Modifier = Modifier,
+        context: Context,
+        nativeHolder: NativeHolder,
+        @LayoutRes layout: Int,
+        size: GoogleENative,
+        callback: NativeCallBackNew
+    ) {
         var isLoading by remember { mutableStateOf(true) }
         var maxAdView by remember { mutableStateOf<MaxNativeAdView?>(null) }
         if (!enableAds || !isNetworkConnected(context)) {
             callback.onAdFail("No internet")
-            isLoading=false
+            isLoading = false
             return
         }
         if (applovin_sdk?.settings?.isVerboseLoggingEnabled == null) {
             callback.onAdFail("SDK not Initialized")
-            isLoading=false
+            isLoading = false
             return
         }
         LaunchedEffect(true) {
@@ -298,12 +311,12 @@ object ApplovinUtilsCompose {
                         // Save ad to be rendered later.
                         callback.onNativeAdLoaded(ad, maxAdView)
                         maxAdView = createNativeAdView(context, layout, ad)
-                        isLoading=false
+                        isLoading = false
                     }
 
                     override fun onNativeAdLoadFailed(adUnitId: String, error: MaxError) {
                         callback.onAdFail(error.code.toString().replace("-", ""))
-                        isLoading=false
+                        isLoading = false
                     }
 
                     override fun onNativeAdClicked(ad: MaxAd) {
@@ -323,26 +336,26 @@ object ApplovinUtilsCompose {
                     maxAdView = createNativeAdView(context, layout, nativeHolder.native!!)
                     nativeHolder.nativeAdLoader?.render(maxAdView, nativeHolder.native)
                     callback.onNativeAdLoaded(nativeHolder.native, maxAdView)
-                    isLoading=false
+                    isLoading = false
                 } else {
                     callback.onAdFail("NativeAd Null")
-                    isLoading=false
+                    isLoading = false
                 }
-            }else{
+            } else {
                 nativeHolder.native_mutable.observe(context as LifecycleOwner) {
                     if (it != null) {
                         if (it.nativeAd != null) {
                             nativeHolder.nativeAdLoader?.render(maxAdView, nativeHolder.native)
                             callback.onNativeAdLoaded(nativeHolder.native, maxAdView)
                             maxAdView = createNativeAdView(context, layout, it)
-                            isLoading=false
+                            isLoading = false
                         } else {
                             callback.onAdFail("NativeAd null")
-                            isLoading=false
+                            isLoading = false
                         }
                     } else {
                         callback.onAdFail("NativeAd null")
-                        isLoading=false
+                        isLoading = false
                     }
                 }
             }
@@ -350,15 +363,18 @@ object ApplovinUtilsCompose {
 
 
 
-        Box(modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()) {
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
             if (maxAdView != null) {
-                AndroidView(factory = { context ->
-                    maxAdView!!
-                }, modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
+                AndroidView(
+                    factory = { context ->
+                        maxAdView!!
+                    }, modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
                 )
             }
             if (isLoading) {
@@ -368,7 +384,6 @@ object ApplovinUtilsCompose {
         }
 
     }
-
 
     private fun createNativeAdView(context: Context, layout: Int, maxAd: MaxAd): MaxNativeAdView {
         val binder: MaxNativeAdViewBinder = MaxNativeAdViewBinder.Builder(layout)

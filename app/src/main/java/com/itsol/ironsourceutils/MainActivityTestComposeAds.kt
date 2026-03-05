@@ -33,7 +33,7 @@ import com.itsol.ironsourcelib.utils.NativeHolder
 import com.itsol.ironsourcelib.utils.admod.callback.NativeAdmobCallback
 
 class MainActivityTestComposeAds : ComponentActivity() {
-    companion object{
+    companion object {
         val nativeHolderAdmob = NativeHolderAdmob("")
         val nativeHolderAdmob2 = NativeHolderAdmob("")
         val bannerHolder = BannerHolder("")
@@ -42,10 +42,9 @@ class MainActivityTestComposeAds : ComponentActivity() {
     }
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AdmobUtils.loadAndGetNativeAds(this, nativeHolderAdmob, object : NativeAdmobCallback{
+        AdmobUtils.loadAndGetNativeAds(this, nativeHolderAdmob, object : NativeAdmobCallback {
             override fun onLoadedAndGetNativeAd(ad: NativeAd?) {
 
             }
@@ -66,154 +65,39 @@ class MainActivityTestComposeAds : ComponentActivity() {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     item {
-                        Column(modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)) {
-                    AdmobUtilsCompose.ShowNativeAdsWithLayout(
-                        this@MainActivityTestComposeAds,
-                        nativeHolderAdmob,
-                        R.layout.ad_template_medium,
-                        GoogleENative.UNIFIED_MEDIUM,
-                        object : AdmobUtils.AdsNativeCallBackAdmod {
-                            override fun NativeLoaded() {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding)
+                        ) {
+                            AdmobUtilsCompose.LoadAndShowNativeFullScreen(
+                                context = this@MainActivityTestComposeAds,
+                                nativeHolder = nativeHolderAdmob2,
+                                layout = R.layout.ad_unified_medium,
+                                callback = object :
+                                    AdmobUtils.AdsNativeCallBackAdmod {
+                                    override fun NativeLoaded() {
 
-                            }
+                                    }
 
-                            override fun NativeFailed(massage: String) {
-                                Log.e("AAAAAAAA", "NativeFailed: ", )
-                            }
+                                    override fun NativeFailed(massage: String) {
 
-                            override fun onPaidNative(adValue: AdValue, adUnitAds: String) {
+                                    }
 
-                            }
-                        })
-//                            ApplovinUtilsCompose.ShowNativeWithLayout(context = this@MainActivityTestComposeAds, nativeHolder = nativeHolder2,  layout = R.layout.native_custom_ad_view, size = GoogleENative.UNIFIED_SMALL , callback = object : NativeCallBackNew{
-//                                override fun onNativeAdLoaded(
-//                                    nativeAd: MaxAd?,
-//                                    nativeAdView: MaxNativeAdView?
-//                                ) {
-//
-//                                }
-//
-//                                override fun onAdFail(error: String) {
-//                                    Log.e("AAAAAAAA", "onAdFail: $error", )
-//
-//                                }
-//
-//                                override fun onAdRevenuePaid(ad: MaxAd?) {
-//
-//                                }
-//                            })
-                            Spacer(modifier = Modifier.height(20.dp))
+                                    override fun onPaidNative(
+                                        nativeAd: NativeAd,
+                                        adValue: AdValue,
+                                        adUnitAds: String
+                                    ) {
 
-//                    AdmobUtilsCompose.LoadAndShowNativeAdsWithLayout(
-//                        this@MainActivityTestComposeAds,
-//                        nativeHolderAdmob2,
-//                        R.layout.ad_template_small,
-//                        GoogleENative.UNIFIED_SMALL,
-//                        object : AdmobUtils.AdsNativeCallBackAdmod {
-//                            override fun NativeLoaded() {
-//
-//                            }
-//
-//                            override fun NativeFailed(massage: String) {
-//
-//                            }
-//
-//                            override fun onPaidNative(adValue: AdValue, adUnitAds: String) {
-//
-//                            }
-//                        })
-//
-//                            ApplovinUtilsCompose.LoadAndShowNativeMaxWithLayout(modifier = Modifier, context = this@MainActivityTestComposeAds, nativeHolder, R.layout.native_custom_ad_view, GoogleENative.UNIFIED_MEDIUM, object :NativeCallBackNew{
-//                                override fun onNativeAdLoaded(
-//                                    nativeAd: MaxAd?,
-//                                    nativeAdView: MaxNativeAdView?
-//                                ) {
-//
-//                                }
-//
-//                                override fun onAdFail(error: String) {
-//
-//                                }
-//
-//                                override fun onAdRevenuePaid(ad: MaxAd?) {
-//
-//                                }
-//                            })
-
-                            Spacer(modifier = Modifier.height(20.dp))
-                            AdmobUtilsCompose.ShowBanner(this@MainActivityTestComposeAds,"", object : AdmobUtils.BannerCallBack{
-                                override fun onClickAds() {
-
-                                }
-
-                                override fun onLoad() {
-
-                                }
-
-                                override fun onFailed(message: String) {
-
-                                }
-
-                                override fun onPaid(adValue: AdValue?, mAdView: AdView?) {
-
-                                }
-                            })
-                            Spacer(modifier = Modifier.height(20.dp))
-                            AdmobUtilsCompose.ShowBannerCollapsibleNotReload(this@MainActivityTestComposeAds, bannerHolder, CollapsibleBanner.TOP, object : AdmobUtils.BannerCollapsibleAdCallback{
-                                override fun onClickAds() {
-
-                                }
-
-                                override fun onBannerAdLoaded(adSize: AdSize) {
-
-                                }
-
-                                override fun onAdFail(message: String) {
-
-                                }
-
-                                override fun onAdPaid(adValue: AdValue, mAdView: AdView) {
-
-                                }
-                            })
+                                    }
+                                })
 
                         }
+
                     }
-//                    item{
-//                        ApplovinUtilsCompose.ShowBannerMax(context = this@MainActivityTestComposeAds, bannerId = "AAAAAAAAAAAA0", callback = object : BannerCallback{
-//                            override fun onBannerLoadFail(error: String) {
-//                                Log.e("AAAAAAAAAA", "onBannerLoadFail: ${error}" )
-//                            }
-//
-//                            override fun onBannerShowSucceed() {
-//
-//                            }
-//
-//                            override fun onAdRevenuePaid(ad: MaxAd?) {
-//
-//                            }
-//                        })
-//                        Spacer(modifier = Modifier.height(20.dp))
-//                        ApplovinUtilsCompose.ShowBannerMaxMERC(context = this@MainActivityTestComposeAds, bannerId = "AAAAAAAAAAAA0", callback = object : BannerCallback{
-//                            override fun onBannerLoadFail(error: String) {
-//                                Log.e("AAAAAAAAAA", "onBannerLoadFail: ${error}" )
-//                            }
-//
-//                            override fun onBannerShowSucceed() {
-//
-//                            }
-//
-//                            override fun onAdRevenuePaid(ad: MaxAd?) {
-//
-//                            }
-//                        })
-//                    }
                 }
-
             }
-
         }
     }
 }

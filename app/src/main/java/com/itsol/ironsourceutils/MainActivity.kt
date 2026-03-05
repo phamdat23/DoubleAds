@@ -19,6 +19,7 @@ import com.itsol.ironsourceutils.databinding.ActivityMainBinding
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdValue
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.nativead.NativeAd
 
 class MainActivity : AppCompatActivity() {
@@ -259,9 +260,14 @@ class MainActivity : AppCompatActivity() {
                     startActivity(Intent(this@MainActivity, MainActivity2::class.java))
                 }
 
-                override fun onPaid(adValue: AdValue?, adsId: String?) {
-                    
+                override fun onPaid(
+                    interAds: InterstitialAd?,
+                    adValue: AdValue?,
+                    adsId: String?
+                ) {
+
                 }
+
 
             },true)
         }

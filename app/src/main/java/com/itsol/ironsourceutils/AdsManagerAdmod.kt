@@ -85,9 +85,14 @@ object AdsManagerAdmod {
                     Utils.getInstance().showMessenger(context, "onAdFail")
                 }
 
-                override fun onPaid(adValue: AdValue?, adsId: String?) {
+                override fun onPaid(
+                    interAds: InterstitialAd?,
+                    adValue: AdValue?,
+                    adsId: String?
+                ) {
                     Utils.getInstance().showMessenger(context, adValue.toString())
                 }
+
 
                 override fun onEventClickAdClosed() {
                     AppOpenManager.getInstance().onDismissTimeForInter = System.currentTimeMillis()
@@ -133,7 +138,7 @@ object AdsManagerAdmod {
                 Utils.getInstance().showMessenger(activity, "onNativeShow")
             }
 
-            override fun onPaidNative(adValue: AdValue, adUnitAds: String) {
+            override fun onPaidNative(nativeAd: NativeAd, adValue: AdValue, adUnitAds: String) {
 
             }
 

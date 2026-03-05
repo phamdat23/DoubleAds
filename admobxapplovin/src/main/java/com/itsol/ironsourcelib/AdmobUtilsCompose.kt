@@ -3,14 +3,12 @@ package com.itsol.ironsourcelib
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.AppCompatButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,51 +25,32 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import com.google.ads.mediation.admob.AdMobAdapter
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdLoader
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.nativead.MediaView
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdOptions
+import com.google.android.gms.ads.nativead.NativeAdView
 import com.itsol.ironsourcelib.AdmobUtils.AdsNativeCallBackAdmod
 import com.itsol.ironsourcelib.AdmobUtils.BannerCollapsibleAdCallback
 import com.itsol.ironsourcelib.AdmobUtils.adRequest
 import com.itsol.ironsourcelib.AdmobUtils.isNetworkConnected
 import com.itsol.ironsourcelib.AdmobUtils.isShowAds
+import com.itsol.ironsourcelib.AdmobUtils.isTesting
 import com.itsol.ironsourcelib.utils.admod.BannerHolder
 import com.itsol.ironsourcelib.utils.admod.NativeHolderAdmob
-import com.google.ads.mediation.admob.AdMobAdapter
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdLoader
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdValue
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.FullScreenContentCallback
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
-import com.google.android.gms.ads.nativead.MediaView
-import com.google.android.gms.ads.nativead.NativeAd
-import com.google.android.gms.ads.nativead.NativeAdOptions
-import com.google.android.gms.ads.nativead.NativeAdView
-import com.itsol.ironsourcelib.AdmobUtils.dialogLoading
-import com.itsol.ironsourcelib.AdmobUtils.dismissAdDialog
-import com.itsol.ironsourcelib.AdmobUtils.initAdRequest
-import com.itsol.ironsourcelib.AdmobUtils.isAdShowing
-import com.itsol.ironsourcelib.AdmobUtils.isTesting
-import com.itsol.ironsourcelib.AdmobUtils.lastTimeShowInterstitial
-import com.itsol.ironsourcelib.AdmobUtils.mInterstitialAd
-import com.itsol.ironsourcelib.AdmobUtils.timeOut
-import com.itsol.ironsourcelib.utils.admod.InterHolderAdmob
-import com.itsol.ironsourcelib.utils.admod.callback.AdsInterCallBack
 import com.valentinilk.shimmer.shimmer
-import kotlinx.coroutines.delay
-import java.util.Date
 
 object AdmobUtilsCompose {
 
@@ -201,7 +180,67 @@ object AdmobUtilsCompose {
         val adView by remember { mutableStateOf(LayoutInflater.from(context).inflate(layout, null) as NativeAdView) }
         PopulateNativeAdViewCompose(nativeAd, adView, size)
     }
+    @Composable
+    fun LoadAndShowNativeFullScreen(
+        modifier: Modifier = Modifier,
+        context: Context,
+        nativeHolder: NativeHolderAdmob,
+        @LayoutRes layout: Int,
+        callback: AdsNativeCallBackAdmod
+    ) {
+        if (!isNetworkConnected(context)) {
+            callback.NativeFailed("No Internet")
+            return
+        }
+        if (adRequest==null) {
+            callback.NativeFailed("Not init admob")
+            return
+        }
+        if (!isShowAds) {
+            callback.NativeFailed("Non Show")
+        }
+        if (AdmobUtils.isTesting) {
+            nativeHolder.ads = context.getString(R.string.test_ads_admob_native_id)
+        }
+        var nativeAd by remember{ mutableStateOf<NativeAd?>(null) }
+        val builder by remember { mutableStateOf(AdLoader.Builder(context, nativeHolder.ads)) }
+        builder.forNativeAd { it ->
+            nativeAd = it
+            Log.e("AAAAAAAAAAAAAA", "LoadAndShowNativeAdsWithLayout:nativeAd1:${nativeAd} ", )
+            nativeHolder.nativeAd = it
+            nativeHolder.native_mutable.value = it
+            it.setOnPaidEventListener {
+                callback.onPaidNative(nativeAd!!,it, nativeHolder.ads)
+            }
 
+        }
+        val adLoader by remember {
+            mutableStateOf(
+                builder
+                    .withAdListener(object : AdListener() {
+                        override fun onAdFailedToLoad(adError: LoadAdError) {
+                            nativeAd = null
+                            Log.e("AAAAAAAAAA", "onAdFailedToLoad: nativeAd2:${nativeAd}", )
+                            nativeHolder.nativeAd = null
+                            nativeHolder.native_mutable.value = null
+                            callback.NativeFailed("load ad fail")
+                        }
+
+                        override fun onAdLoaded() {
+                            super.onAdLoaded()
+                            callback.NativeLoaded()
+                        }
+                    })
+                    .withNativeAdOptions(NativeAdOptions.Builder().build())
+                    .build()
+            )
+        }
+        if (adRequest != null) {
+            adLoader.loadAd(adRequest!!)
+        }
+        val adView by remember { mutableStateOf(LayoutInflater.from(context).inflate(layout, null) as NativeAdView) }
+        PopulateNativeAdViewComposeFullScreen(nativeAd, adView)
+    }
     @Composable
     fun ShowBannerCollapsibleNotReload(context: Context, bannerId: BannerHolder, collapsibleBanner: CollapsibleBanner, callBack: BannerCollapsibleAdCallback) {
         val activity = context as Activity
@@ -512,6 +551,107 @@ object AdmobUtilsCompose {
                                 if (size == GoogleENative.UNIFIED_MEDIUM) {
                                     adView.mediaView?.mediaContent = it.mediaContent
                                 }
+                                it.icon?.drawable?.let { it1 ->
+                                    (adView.iconView as ImageView).setImageDrawable(it1)
+                                }
+                                it.starRating?.let { it1 ->
+                                    (adView.starRatingView as RatingBar).rating = it1.toFloat()
+                                }
+                            }
+                            adView
+                        },
+                        update = {
+
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                    )
+                }
+
+
+            }
+
+        }
+
+
+    }
+
+    @Composable
+    private fun PopulateNativeAdViewComposeFullScreen(
+        nativeAd: NativeAd?,
+        adView: NativeAdView,
+        loading: Boolean = true
+    ) {
+        var isLoading by remember { mutableStateOf(loading) }
+        var nativeAds by remember { mutableStateOf<NativeAd?>(nativeAd) }
+        LaunchedEffect(nativeAd) {
+            nativeAds = nativeAd
+            if (nativeAds != null) {
+                isLoading = false
+            }
+        }
+        LaunchedEffect(loading) {
+            isLoading = loading
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            if (isLoading) {
+                Column(
+                    modifier = Modifier
+                        .shimmer() // <- Affects all subsequent UI elements
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp)
+                            .background(Color.LightGray),
+                    )
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(24.dp)
+                                .background(Color.LightGray),
+                        )
+                        Box(
+                            modifier = Modifier
+                                .size(120.dp, 20.dp)
+                                .background(Color.LightGray),
+                        )
+                    }
+                }
+
+            } else {
+                if(nativeAds!=null){
+                    AndroidView(
+                        factory = { context ->
+                            val headlineView = adView.findViewById<TextView>(R.id.ad_headline)
+                            val ctaView = adView.findViewById<AppCompatButton>(R.id.ad_call_to_action)
+                            val icon = adView.findViewById<ImageView>(R.id.ad_app_icon)
+                            val secondary = adView.findViewById<TextView>(R.id.ad_body)
+                            val mediaView = adView.findViewById<MediaView>(R.id.ad_media)
+                            val rating = adView.findViewById<RatingBar>(R.id.ad_stars)
+                            adView.headlineView = headlineView
+                            adView.callToActionView = ctaView
+                            adView.iconView = icon
+                            adView.bodyView = secondary
+                            adView.mediaView = mediaView
+                            adView.starRatingView = rating
+                            nativeAds?.let {
+                                adView.setNativeAd(it)
+                                headlineView.text = it.headline
+                                ctaView.text = it.callToAction
+                                secondary.text = it.body
+                                adView.mediaView?.mediaContent = it.mediaContent
                                 it.icon?.drawable?.let { it1 ->
                                     (adView.iconView as ImageView).setImageDrawable(it1)
                                 }

@@ -89,3 +89,35 @@ fun LayoutShimmerNative(modifier: Modifier=Modifier, size: GoogleENative){
         }
     }
 }
+@Composable
+fun LayoutShimmerNativeFullScreen(modifier: Modifier=Modifier){
+    Column(
+        modifier = modifier
+            .shimmer() // <- Affects all subsequent UI elements
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(150.dp)
+                .background(Color.LightGray),
+        )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(24.dp)
+                    .background(Color.LightGray),
+            )
+            Box(
+                modifier = Modifier
+                    .size(120.dp, 20.dp)
+                    .background(Color.LightGray),
+            )
+        }
+    }
+}
